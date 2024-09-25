@@ -16,15 +16,16 @@ class HomePage(Page):
     
     header = RichTextField(blank=True, null=True, features=['h2', 'h3', 'h4', 'ol', 'ul', 'hr', 'bold', 'italic', 'link', 'document-link', 'image', 'embed', 'code'], )
     body = StreamField([
-        ('gallery', blocks.ListBlock(ImageChooserBlock())),
-        ('heading', blocks.CharBlock(form_classname="title")),
-        ('paragraph', blocks.RichTextBlock()),
+        ('gallery', blocks.ListBlock(ImageChooserBlock(), icon='image')),
+        ('heading', blocks.CharBlock(form_classname="title", icon='title')),
+        ('paragraph', blocks.RichTextBlock(icon='title')),
         ('image', ImageChooserBlock()),
         ('video', EmbedBlock()),
     ], use_json_field=True)
 
     content_panels = Page.content_panels + [
         FieldPanel('header', icon='title'),
+        FieldPanel('body', icon='grip'),
     ]
 
     api_fields = [
