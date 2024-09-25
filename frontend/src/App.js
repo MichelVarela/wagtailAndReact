@@ -9,7 +9,7 @@ function App() {
     const [home, setHome] = useState([]);
 
     useEffect(() => {
-        axios.get("/3").then((response) => {
+        axios.get("/api/v2/pages/?type=home.HomePage&fields=header,body&id=3").then((response) => {
             setHome(response.data);
             console.log(response.data)
         });
