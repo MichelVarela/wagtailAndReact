@@ -9,16 +9,16 @@ function App() {
     const [home, setHome] = useState([]);
 
     useEffect(() => {
-        axios.get("/api/v2/pages/?type=home.HomePage&fields=header,body&id=3").then((response) => {
+        axios.get("/pages/?type=home.HomePage&fields=header,body&id=3").then((response) => {
             setHome(response.data);
-            console.log(response.data)
+            console.log(response.data);
         });
     }, []);
     
     return (
         <Container>
-          <Heading as="h2">Hi {home.title}</Heading>
-          <Box dangerouslySetInnerHTML={{ __html: home.header }}></Box>
+          <Heading as="h2">Page title {home.items[0].title}</Heading>
+          <Box dangerouslySetInnerHTML={{ __html: home.items[0].header }}></Box>
         </Container>
     );
 }
