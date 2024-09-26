@@ -1,18 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Route,
-  Link,
-} from "react-router-dom";
-import App from './App';
+import { RouterProvider } from "react-router-dom";
+import router from './router';
+// import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import { ChakraProvider } from '@chakra-ui/react'
 
-const router = createBrowserRouter([
+/* const router = createBrowserRouter([
   {
     path: "/:id",
     element: (
@@ -23,14 +19,14 @@ const router = createBrowserRouter([
     path: "about",
     element: <div>About</div>,
   },
-]);
+]); */
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-  <ChakraProvider>
-  <RouterProvider router={router} />
-  </ChakraProvider>
+    <ChakraProvider>
+      <RouterProvider router={router} />
+    </ChakraProvider>
   </React.StrictMode>
 );
 

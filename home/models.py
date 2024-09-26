@@ -32,3 +32,22 @@ class HomePage(Page):
         APIField('header'),
         APIField('body'),
     ]
+
+
+class BlogPage(Page):
+    
+    body = StreamField([
+        ('gallery', blocks.ListBlock(ImageChooserBlock(), icon='image')),
+        ('heading', blocks.CharBlock(form_classname="title", icon='title')),
+        ('paragraph', blocks.RichTextBlock(icon='title')),
+        ('image', ImageChooserBlock()),
+        ('video', EmbedBlock()),
+    ], use_json_field=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel('body', icon='grip'),
+    ]
+
+    api_fields = [
+        APIField('body'),
+    ]
