@@ -4,7 +4,7 @@ import { Container } from '@chakra-ui/react';
 const LayoutPublic = () => {
     return <>
         <nav>nav</nav>
-        <Container>
+        <Container maxW="2xl">
             {/* Contiene los elementos hijos de nuestra ruta raíz */}
             <Outlet/>
         </Container>
