@@ -9,9 +9,12 @@ import { motion } from 'framer-motion';
 
 /* swiper carousel */
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Controller, Autoplay } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import "swiper/css/autoplay";
+
+/* utils */
+import { getImage } from "../utils";
 
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URL
@@ -52,7 +55,29 @@ function Home() {
                 }
 
                 if (currentBody[i].type === 'paragraph') {
-                    currentBody[i].value = <Box dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentBody[i].value) }}></Box>;
+                    let paragraph = currentBody[i].value;
+                    
+                    /* parse del richtext */
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(currentBody[i].value, 'text/html');
+
+                    /* busco embedtype[image] */
+                    const embed = doc.querySelectorAll('embed[embedtype="image"]');
+                    
+                    
+                    if (embed.length > 0) {
+                        for (let j = 0; j < embed.length; j++) {
+                            
+                            const image = await getImage(embed[j].getAttribute("id"));
+                            
+                            let addSlash = embed[j].outerHTML.replace('">', '"/>').trim();
+                            
+                            /* replace de embedtype[image] por tags img */
+                            paragraph = paragraph.replace(addSlash, `<img src=${process.env.REACT_APP_API_URL + image.meta.download_url} alt="${image.title}">`);
+                        }
+                    }
+                    
+                    currentBody[i].value = <Box dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(paragraph) }}></Box>;
                 }
 
                 if (currentBody[i].type === 'gallery') {
@@ -60,14 +85,12 @@ function Home() {
 
                     for (let j = 0; j < currentBody[i].value.length; j++) {
 
-                        const results = await axios.get(`${process.env.REACT_APP_API_URL}/api/v2/images/` + currentBody[i].value[j])
-                        .then(result => {  
-
-                            gallery.push(<Box p="1rem"><Image src={process.env.REACT_APP_API_URL + result.data.meta.download_url} alt={result.data.title}></Image></Box>);
-                        }); 
+                        const image = await getImage(currentBody[i].value[j]);
+                        gallery.push(<Box p="1rem"><Image src={process.env.REACT_APP_API_URL + image.meta.download_url} alt={image.title}></Image></Box>);
                     }
 
-                    currentBody[i].value = <Swiper modules={[Autoplay]} slidesPerView="auto" loop={true} autoplay={{ delay: 3000 }} onSlideChange={() => console.log('slide change')} onSwiper={(swiper) => console.log(swiper)}>
+                    /* swiper carousel */
+                    currentBody[i].value = <Swiper modules={[Autoplay]} slidesPerView="auto" loop={true} autoplay={{ delay: 3000 }}>
                         {gallery.map((slide, item) => (
                             <SwiperSlide key={item} style={{width: "auto"}}>{slide}</SwiperSlide>
                         ))}
@@ -75,10 +98,9 @@ function Home() {
                 }
 
                 if (currentBody[i].type === 'image') {
-                    const results = await axios.get(`${process.env.REACT_APP_API_URL}/api/v2/images/` + currentBody[i].value)
-                        .then(result => {  
-                            currentBody[i].value = <Box p="2rem"><Image src={process.env.REACT_APP_API_URL + result.data.meta.download_url} alt={result.data.title}></Image></Box>;
-                        }); 
+
+                    const image = await getImage(currentBody[i].value);
+                    currentBody[i].value = <Box p="2rem"><Image src={process.env.REACT_APP_API_URL + image.meta.download_url} alt={image.title}></Image></Box>;
                 }
 
                 /* if (currentBody[i].type === 'video') {
