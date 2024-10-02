@@ -3,7 +3,7 @@ import axios from "axios";
 import DOMPurify from 'dompurify';
 
 /* chakra */
-import { Container, Flex, Heading, Box, Image, keyframes, Text } from '@chakra-ui/react';
+import { Container, Heading, Box, Image, keyframes, Text } from '@chakra-ui/react';
 import { SpinnerIcon } from '@chakra-ui/icons';
 import { motion } from 'framer-motion';
 
@@ -14,7 +14,7 @@ import 'swiper/css';
 import "swiper/css/autoplay";
 
 /* utils */
-import { getImage } from "../utils";
+import { getRootPage, getPageData, getImage } from "../utils";
 
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URL
@@ -38,13 +38,13 @@ function Home() {
         
         try {
             setLoading(true)
-            const result = await axios.get(`${process.env.REACT_APP_API_URL}/api/v2/pages/?type=home.HomePage&fields=*`);
+            const rootPage = await getRootPage();
             
             /* tomo los datos de homePage[0] */
-            setData(result.data.items[0]);
+            setData(rootPage);
             
             /* body actual */
-            let currentBody = result.data.items[0].body;
+            let currentBody = rootPage.body;
             /* body reestructurado */
             let restructuredBody = [];
 
@@ -61,19 +61,31 @@ function Home() {
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(currentBody[i].value, 'text/html');
 
-                    /* busco embedtype[image] */
+                    /* mostrar imagenes en el richtext */
                     const embed = doc.querySelectorAll('embed[embedtype="image"]');
-                    
                     
                     if (embed.length > 0) {
                         for (let j = 0; j < embed.length; j++) {
                             
                             const image = await getImage(embed[j].getAttribute("id"));
+                            const format = embed[j].getAttribute("format"); /* classes fullwidth, left, right */                            
                             
                             let addSlash = embed[j].outerHTML.replace('">', '"/>').trim();
                             
                             /* replace de embedtype[image] por tags img */
-                            paragraph = paragraph.replace(addSlash, `<img src=${process.env.REACT_APP_API_URL + image.meta.download_url} alt="${image.title}">`);
+                            paragraph = paragraph.replace(addSlash, `<img src=${process.env.REACT_APP_API_URL + image.meta.download_url} alt="${image.title}" class="${format}" style="margin-top: 1rem; margin-bottom: 1rem;">`);
+                        }
+                    }
+
+                    const internalLink = doc.querySelectorAll('a[linktype="page"]');
+                    
+                    /* mostrar redireccionamientos a páginas internas */
+                    if (internalLink.length > 0) {
+                        for (let j = 0; j < internalLink.length; j++) {
+                            //console.log(internalLink[j].getAttribute("id"));
+                            const link = await getPageData(internalLink[j].getAttribute("id"));
+                            console.log(link);
+                            
                         }
                     }
                     
